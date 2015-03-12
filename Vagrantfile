@@ -1,6 +1,6 @@
 ﻿# -*- mode: ruby -*-
 # vi: set ft=ruby:fdm=marker
-HOST = "33.33.33.01"
+HOST = "33.33.33.32"
 HOSTNAME = "local.kirillpavlov.com"
 MEMORY = "2048"
 CPUS = "4"
@@ -32,5 +32,10 @@ Vagrant.configure("2") do |config|
     config.ssh.forward_x11 = true
 
     config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "provisioning/base.yml"
+        ansible.limit = "all"
+        ansible.sudo = true
+        ansible.sudo_user = "root"
+        ansible.verbose = "vvvv"
     end
 end

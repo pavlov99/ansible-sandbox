@@ -13,3 +13,6 @@ You should have the following installed:
 [Vagrant]:http://www.vagrantup.com/
 [Vagrant_installation]:http://docs.vagrantup.com/v2/installation/index.html
 [Ansible]:http://docs.ansible.com/
+
+NOTE: administrators should add HOST from Vagrantfile to DNS record for HOSTNAME.
+NOTE: parenot folder of current repository should not include any other shared folders.
