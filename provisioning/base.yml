@@ -1,6 +1,0 @@
-# vim:ft=ansible:
----
-- hosts: all
-  roles:
-    - Stouts.users
-    - Stouts.timezone
