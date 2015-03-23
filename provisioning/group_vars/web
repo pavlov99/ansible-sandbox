@@ -1,0 +1,85 @@
+project_project: 'project'
+project_user: '{{ project_project }}'
+project_log_to: '/var/log/project'
+project_runtime_to: '/var/run/project'
+project_root: '/opt/project'
+project_configs: '{{ project_root }}/conf'
+project_backend: '{{ project_root }}/backend'
+project_backend_current: '{{ project_backend }}/current'
+project_frontend: '{{ project_root }}/frontend'
+project_frontend_current: '{{ project_frontend }}/current'
+project_port: 8001
+project_mode: 'local'
+project_server_names:
+  local.kirillpavlov.com
+project_dbhost: 'DEFINEME'
+project_rabbitmqhost: 'DEFINEME'
+project_redishost: 'DEFINEME'
+
+nginx_configs:
+  upstream:
+    - upstream project_api { server 127.0.0.1:{{ project_port }}; }
+  gzip:
+    - gzip on
+    - gzip_disable msie6
+    - gzip_vary on
+    - gzip_http_version 1.0
+    - gzip_types text/plain text/css application/json application/javascript application/x-javascript text/javascript text/xml application/xml application/rss+xml application/atom+xml application/rdf+xml
+  proxy:
+    - proxy_pass_header Server
+    - proxy_set_header Host $http_host
+    - proxy_redirect off
+    - proxy_set_header X-Real-IP  $remote_addr
+    - proxy_set_header X-Scheme $scheme
+    - proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for
+    - proxy_set_header X-Forwarded-Proto $scheme
+
+nginx_sites:
+  http.project.com:
+    - listen 80
+    - server_name {{ project_server_names }}
+    - return 301 https://$server_name$request_uri
+  https.project.com:
+    - listen 443 ssl
+    - ssl_certificate /etc/nginx/ssl/project.com.crt
+    - ssl_certificate_key /etc/nginx/ssl/project.com.key
+    - server_name {{ project_server_names }}
+    - charset utf-8
+
+    - root {{ project_frontend_current }}
+    - index index.html
+
+    - error_page 404             /404.html
+    - error_page 500 502 503 504 /500.html
+
+    - location @proxy_project_api {
+        proxy_pass http://project_api;
+      }
+    - location /static {
+        alias {{ project_backend_current }}/projectit/static;
+        expires 1y;
+      }
+    - location /scripts {
+        expires 1y;
+      }
+    - location /styles {
+        expires 1y;
+      }
+    - location /images {
+        expires 7d;
+      }
+    - location / {
+        try_files $uri $uri/index.html @proxy_project_api;
+      }
+    - access_log {{ project_log_to }}/nginx-access.log
+    - error_log {{ project_log_to }}/nginx-error.log
+
+supervisor_tasks:
+  - name: project-web
+    command: "{{ project_backend }}/.env/bin/gunicorn --env DJANGO_SETTINGS_MODULE=project.settings.project --bind=127.0.0.1:{{ project_port }} --workers={{ 2 * ansible_processor_cores + 1}} project.wsgi"
+    directory: "{{ project_backend_current }}"
+    autostart: true
+    autorestart: true
+    user: "{{ project_user }}"
+    stdout_logfile: "{{ project_log_to }}/web.log"
+    stderr_logfile: "{{ project_log_to }}/web-error.log"

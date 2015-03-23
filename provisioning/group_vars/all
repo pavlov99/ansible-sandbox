@@ -1,0 +1,19 @@
+---
+# Variables here are applicable to all host groups
+
+
+timezone_timezone: Etc/UTC
+
+locale_all: en_US.UTF-8
+locale_lang: en_US.UTF-8
+
+apt_default_packages_install: no
+apt_packages:
+  - ntp  # server time synchronization
+
+nginx_official_repo: True
+
+python_versions: [2.7, 3.4]
+python_install:
+  - setuptools
+  - virtualenv

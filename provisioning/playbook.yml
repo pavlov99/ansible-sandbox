@@ -1,0 +1,99 @@
+---
+# This playbook deploys whole system configuration. Every configuration
+# is specific for certain hosts.
+
+# Base server setup. Applicable for all machines.
+- name: Base Server Configuration
+  hosts: all
+  roles:
+    - Stouts.timezone
+    - knopki.locale
+    - Stouts.apt  # installs build essential packages.
+    - jdauphant.nginx
+    - Stouts.python
+
+
+# Database server setup.
+- name: Database Configuration
+  hosts: db
+  roles:
+    - ANXS.postgresql
+    - Stouts.rabbitmq
+
+
+# Cache server setup. Note, cache could grow unexpectedly, it is recommended
+# to use independent machines for caching.
+- name: Cache Configuration
+  hosts: cache
+  roles:
+    - Stouts.redis
+
+
+# Web server setup.
+- name: Web Application Configuration
+  hosts: web
+  roles:
+    - Stouts.supervisor
+  tasks:
+    - name: Install PostgreSQL dependencies
+      apt: pkg={{item}} state=installed
+      with_items:
+        - libpq5
+        - libpq-dev
+      sudo_user: root
+    - name: Create SSL directory
+      file: path=/etc/nginx/ssl state=directory mode=755
+      sudo_user: root
+    - name: Copy SSL certificate
+      copy: src=./files/project.com.crt dest=/etc/nginx/ssl/project.com.crt
+      sudo_user: root
+    - name: Copy SSL certificate key
+      copy: src=./files/project.com.key dest=/etc/nginx/ssl/project.com.key
+      sudo_user: root
+    - name: Create project user
+      user: name=project comment="project user" createhome=no system=yes shell=/bin/false
+      sudo_user: root
+    - name: Create project log directory
+      file: path={{ project_log_to }} state=directory
+      sudo_user: root
+    - name: Create project runtime (pid) directory
+      file: path={{ project_runtime_to }} state=directory
+      sudo_user: root
+    - name: Create project project directories
+      file: path={{ item }} state=directory owner={{ project_user }}
+      sudo_user: root
+      with_items:
+        - "{{ project_root }}"
+        - "{{ project_configs }}"
+        - "{{ project_backend }}"
+        - "{{ project_frontend }}"
+    - name: Create project web settings file
+      template: src=./templates/settings_web.py dest={{ project_configs }}/settings_web.py owner={{ project_user }} mode=400
+      sudo_user: root
+
+
+# Development server setup.
+- name: Development Tools Configuration
+  hosts: dev
+  roles:
+    - Stouts.apt
+    - Stouts.nodejs
+
+
+# Package builder role.
+- name: Debian Package Builder Configuration
+  hosts: debbuilder
+  roles:
+    - Stouts.apt  # installs build essential packages.
+  tasks:
+    - name: Install required packages to build deb.
+      apt: pkg={{item}} state=installed
+      with_items:
+        - devscripts
+        - lintian
+        - patch
+        - patchutils
+        - ruby-dev
+      sudo_user: root
+    - name: Install fpm tool to create packages
+      gem: name=fpm

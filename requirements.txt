@@ -1,2 +1,10 @@
 Stouts.timezone
-Stouts.users
+knopki.locale
+Stouts.apt
+jdauphant.nginx
+Stouts.python
+ANXS.postgresql
+Stouts.redis
+Stouts.supervisor
+Stouts.nodejs
+Stouts.rabbitmq

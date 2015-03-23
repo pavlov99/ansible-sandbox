@@ -1,0 +1,22 @@
+nodejs_install_method: "package"
+
+nodejs_npm_modules:
+  - npm
+  - jshint
+  - less
+  - gulp
+  - bower
+  - yo
+
+apt_packages:
+  - git
+  - git-flow
+  - silversearcher-ag
+  - exuberant-ctags  # vim helper
+  - tree
+  - htop
+  - libpng12-dev
+
+python_install:
+  - ipython
+  - ipdb

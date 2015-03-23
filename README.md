@@ -28,16 +28,16 @@ After all the prerequisities met, you can boot an instant openstack developing e
 
 # Deployment structure
 
-    $ tree -L 3 /opt/<project>/
-    /opt/<project>/
+    $ tree -L 3 /opt/project/
+    /opt/project/
     ├── backend
-    │   ├── current -> /opt/<project>/backend/releases/0.0.1
+    │   ├── current -> /opt/project/backend/releases/0.0.1
     │   └── releases
     │       └── 0.0.1
     ├── conf
     │   └── settings_web.py
     └── frontend
-        ├── current -> /opt/<project>/frontend/releases/0.0.1
+        ├── current -> /opt/project/frontend/releases/0.0.1
         └── releases
             └── 0.0.1
 

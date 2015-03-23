@@ -1,0 +1,55 @@
+project_dbname: 'project'
+project_dbuser: 'project'
+project_dbpassword: 'project'
+project_rabbitmqvhost: 'project'
+project_rabbitmquser: 'project'
+project_rabbitmqpassword: 'project'
+
+postgresql_version: 9.3
+postgresql_encoding: "UTF-8"
+postgresql_locale: "en_US.UTF-8"
+postgresql_listen_addresses: "*"
+
+postgresql_pg_hba_custom:
+  - type: host
+    database: all
+    user: all
+    address: '0.0.0.0/0'
+    method: 'md5'
+    comment: 'Connection from remote machine with encrypted password'
+  - type: host
+    database: all
+    user: all
+    address: '::1/0'
+    method: 'md5'
+    comment: 'Connection from remote machine with encrypted password'
+
+postgresql_users:
+  - name: "{{ project_dbuser }}"
+    pass: "{{ project_dbpassword }}"
+    encrypted: no
+
+postgresql_databases:
+  - name: "{{ project_dbname }}"
+
+postgresql_user_privileges:
+  - name: "{{ project_dbuser }}"
+    db: "{{ project_dbname }}"
+
+rabbitmq_users_remove:
+  - guest
+
+rabbitmq_plugins:
+  - rabbitmq_management
+
+rabbitmq_vhosts:
+  - "{{ project_rabbitmqvhost }}"
+
+rabbitmq_users:
+  - user: "{{ project_rabbitmquser }}"
+    password: "{{ project_rabbitmqpassword }}"
+    vhost: "{{ project_rabbitmqvhost }}"
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    tags: administrator
