@@ -17,6 +17,9 @@ apt_packages:
   - htop
   - libpng12-dev
 
+python_versions: [2.7, 3.3, 3.4]
 python_install:
+  - setuptools
+  - virtualenv
   - ipython
   - ipdb
